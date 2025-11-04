@@ -4,6 +4,19 @@ DevOps Assignment: Publish with GitHub Pages + Auto Activity Log
 
 ## 🧭 Recent Activity
 <!--START_SECTION:activity-->
+### 🏗️ Categorized GitHub Activity
+
+#### 🟩 Push Events
+- 2025-11-04T10:06:29 — Push to [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+- 2025-11-04T10:04:51 — Push to [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+- 2025-11-04T09:55:01 — Push to [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+- 2025-11-04T09:49:53 — Push to [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+- 2025-11-04T09:39:47 — Push to [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+
+#### 🟨 Create Events
+- 2025-11-04T09:28:21 — Created branch in [93weiwei/devops-pages-lab](https://github.com/93weiwei/devops-pages-lab)
+
+#### 🟦 Pull Requests / Issues
 <!--END_SECTION:activity-->
 
 ---
