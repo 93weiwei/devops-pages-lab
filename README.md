@@ -27,19 +27,6 @@ The interval balances **freshness and API efficiency**, keeping the activity lis
 without exceeding GitHub’s rate limits.  
 It can also be manually triggered from the **Actions** tab for on-demand updates.
 
----
-
-## 💡 Reflection
-Through this assignment, I learned how **CI/CD pipelines** can extend beyond code deployment —  
-they can automate content updates and publishing as well.  
-
-In this project:
-- GitHub Actions validates and transforms activity data from the API.  
-- Markdown serves as both documentation and a publishable artifact via **GitHub Pages**.  
-- Using `index.md` with `include_relative` allows Pages to render a live, auto-updated site.  
-
-This demonstrates how DevOps principles — automation, traceability, and reproducibility —  
-apply not just to software builds but also to content workflows.
 
 ---
 
