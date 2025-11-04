@@ -1,0 +1,22 @@
+name: Update Activity Log
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"  # 每 12 小時自動更新
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update GitHub Activity
+        uses: 93weiwei/activity-log@staging-v1.0
+        with:
+          GITHUB_USERNAME: "93weiwei"
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          EVENT_LIMIT: 10
