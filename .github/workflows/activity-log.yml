@@ -3,10 +3,10 @@ name: Update Activity Log
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */12 * * *"  # 每 12 小時自動更新
+    - cron: "0 */12 * * *"   # 每 12 小時跑一次
 
 permissions:
-  contents: write
+  contents: write            # 需要能 commit README
 
 jobs:
   update:
@@ -14,9 +14,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update GitHub Activity
-        uses: 93weiwei/activity-log@staging-v1.0
-        with:
-          GITHUB_USERNAME: "93weiwei"
-          GITHUB_TOKEN: ${{ github.token }}
-          EVENT_LIMIT: 10
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Fetch recent events -> activity.md
+        env:
+          GH_USER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ github.token }}    # 內建 token，免 PAT
+        run: |
+          # 抓最近 20 筆公開事件
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/users/${GH_USER}/events?per_page=20" > events.json
+
+          # 轉成前 10 筆的 Markdown 列表
+          jq -r '
+            map(
+              "- " +
+              (.created_at | sub("T"; " "; "g") | sub("Z$"; ""; "g") | .[0:19]) + " — " +
+              .type + " @ [" + .repo.name + "](" + ("https://github.com/" + .repo.name) + ")"
+            )
+            | .[0:10]
+            | join("\n")
+          ' events.json > activity.md
+
+          echo "Preview:"
+          cat activity.md
+
+      - name: Inject into README between markers
+        run: |
+          # 這裡用你現在 README 的標記：<!--START_SECTION:activity--> ... <!--END_SECTION:activity-->
+          START="<!--START_SECTION:activity-->"
+          END="<!--END_SECTION:activity-->"
+          CONTENT=$(cat activity.md)
+
+          awk -v start="$START" -v end="$END" -v content="$CONTENT" '
+            BEGIN { inblock=0 }
+            {
+              if (index($0, start)) {
+                print $0
+                print content
+                inblock=1
+                next
+              }
+              if (index($0, end)) {
+                inblock=0
+              }
+              if (!inblock) print $0
+            }
+          ' README.md > README.new
+
+          mv README.new README.md
+          echo "README updated."
+
+      - name: Commit changes if any
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore(activity): update recent activity in README [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
