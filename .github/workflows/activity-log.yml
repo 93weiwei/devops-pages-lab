@@ -1,48 +1,53 @@
-name: Update Activity Log
+name: Update Activity Log (Enhanced)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */12 * * *"   # 每 12 小時跑一次
+    - cron: "0 */12 * * *"   # 每 12 小時更新一次
 
 permissions:
-  contents: write            # 需要能 commit README
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Fetch recent events -> activity.md
+      - name: Fetch and format activity log
         env:
           GH_USER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ github.token }}    # 內建 token，免 PAT
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          # 抓最近 20 筆公開事件
           curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
-            "https://api.github.com/users/${GH_USER}/events?per_page=20" > events.json
+            "https://api.github.com/users/${GH_USER}/events?per_page=30" > events.json
 
-          # 轉成前 10 筆的 Markdown 列表
-          jq -r '
-            map(
-              "- " +
-              (.created_at | sub("T"; " "; "g") | sub("Z$"; ""; "g") | .[0:19]) + " — " +
-              .type + " @ [" + .repo.name + "](" + ("https://github.com/" + .repo.name) + ")"
-            )
-            | .[0:10]
-            | join("\n")
-          ' events.json > activity.md
+          echo "### 🏗️ Categorized GitHub Activity" > activity.md
 
-          echo "Preview:"
+          echo -e "\n#### 🟩 Push Events" >> activity.md
+          jq -r '[.[] | select(.type=="PushEvent")] |
+            map("- " + (.created_at[0:19]) + " — Push to [" + .repo.name + "](https://github.com/" + .repo.name + ")") |
+            .[0:5] | join("\n")' events.json >> activity.md
+
+          echo -e "\n#### 🟨 Create Events" >> activity.md
+          jq -r '[.[] | select(.type=="CreateEvent")] |
+            map("- " + (.created_at[0:19]) + " — Created " + .payload.ref_type + " in [" + .repo.name + "](https://github.com/" + .repo.name + ")") |
+            .[0:3] | join("\n")' events.json >> activity.md
+
+          echo -e "\n#### 🟦 Pull Requests / Issues" >> activity.md
+          jq -r '[.[] | select(.type=="PullRequestEvent" or .type=="IssuesEvent")] |
+            map("- " + (.created_at[0:19]) + " — " + .type + " in [" + .repo.name + "](https://github.com/" + .repo.name + ")") |
+            .[0:3] | join("\n")' events.json >> activity.md
+
+          echo "✅ Activity markdown generated:"
           cat activity.md
 
-      - name: Inject into README between markers
+      - name: Inject activity into README
         run: |
-          # 這裡用你現在 README 的標記：<!--START_SECTION:activity--> ... <!--END_SECTION:activity-->
           START="<!--START_SECTION:activity-->"
           END="<!--END_SECTION:activity-->"
           CONTENT=$(cat activity.md)
@@ -64,17 +69,16 @@ jobs:
           ' README.md > README.new
 
           mv README.new README.md
-          echo "README updated."
+          echo "README updated with categorized log."
 
-      - name: Commit changes if any
+      - name: Commit and push if changed
         run: |
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add README.md
-            git commit -m "chore(activity): update recent activity in README [skip ci]"
+            git commit -m "✨ chore(activity): categorized update [skip ci]"
             git push
           else
-            echo "No changes to commit."
+            echo "No changes detected."
           fi
-
