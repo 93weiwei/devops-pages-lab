@@ -7,15 +7,12 @@ DevOps Assignment: Publish with GitHub Pages + Auto Activity Log
 ### 🏗️ Categorized GitHub Activity
 
 #### 🟩 Push Events
-- 2025-11-24T18:17:23 — Push to [93weiwei/assignment11](https://github.com/93weiwei/assignment11)
-- 2025-11-24T18:16:45 — Push to [93weiwei/assignment11](https://github.com/93weiwei/assignment11)
+
 
 #### 🟨 Create Events
-- 2025-11-24T18:02:29 — Created branch in [93weiwei/assignment11](https://github.com/93weiwei/assignment11)
+
 
 #### 🟦 Pull Requests / Issues
-- 2025-11-24T18:08:11 — IssuesEvent in [93weiwei/assignment11](https://github.com/93weiwei/assignment11)
-- 2025-11-24T18:07:04 — IssuesEvent in [93weiwei/assignment11](https://github.com/93weiwei/assignment11)
 <!--END_SECTION:activity-->
 
 ---
